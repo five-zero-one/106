@@ -1,8 +1,15 @@
 import { Link } from "react-router-dom";
+import { Book } from "../api/book";
 import BookShelf from "../component/BookShelf";
+import { OnMoveBook } from "../hook";
 
-export default function BookPage({ books, onMoveBook }) {
-    const categories = { currentlyReading: [], wantToRead: [], read: [] };
+type BookPageProps = {
+    books: Book[];
+    onMoveBook: OnMoveBook;
+};
+
+export default function BookPage({ books, onMoveBook }: BookPageProps) {
+    const categories: Record<string, Book[]> = { currentlyReading: [], wantToRead: [], read: [] };
     for (const book of books) categories[book.shelf].push(book);
 
     return (

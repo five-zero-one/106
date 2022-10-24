@@ -1,10 +1,17 @@
-import { useBook } from "../hook";
+import { Book } from "../api/book";
+import { OnMoveBook, useBook } from "../hook";
 
-export default function Book({ book, onMoveBook }) {
+type BookCardProps = {
+    book: Book;
+    // FIXME type-def required
+    onMoveBook: OnMoveBook;
+};
+
+export default function BookCard({ book, onMoveBook }: BookCardProps) {
     const { shelf, onUpdateShelf } = useBook({ book, onMoveBook });
     return (
-        <div className="w-36">
-            <div className="relative h-52 flex items-end">
+        <div className="book">
+            <div className="book-top">
                 <div
                     className="book-cover"
                     style={{ width: 128, height: 188, backgroundImage: `url("${book.imageLinks?.thumbnail}")` }}
@@ -23,8 +30,8 @@ export default function Book({ book, onMoveBook }) {
                     </select>
                 </div>
             </div>
-            <div className="mt-3 text-xs">{book.title}</div>
-            <div className="text-gray-400 text-xs">{book.authors}</div>
+            <div className="book-title">{book.title}</div>
+            <div className="book-authors">{book.authors}</div>
         </div>
     );
 }

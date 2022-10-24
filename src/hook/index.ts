@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
-import { get, getAll, search, update } from "../api/book";
+import { ChangeEvent, useEffect, useState } from "react";
+import { Book, get, getAll, search, Shelf, update } from "../api/book";
 
-export const useBook = ({ book, onMoveBook }) => {
+export const useBook = ({ book, onMoveBook }: { book: Book; onMoveBook: OnMoveBook; }) => {
     const [shelf, setShelf] = useState(book.shelf);
 
     useEffect(() => {
@@ -13,21 +13,24 @@ export const useBook = ({ book, onMoveBook }) => {
 
     return {
         shelf,
-        onUpdateShelf: (e) => setShelf(e.target.value)
+        onUpdateShelf: (e: ChangeEvent<HTMLSelectElement>) => setShelf(e.target.value as Shelf)
     };
 };
 
 
-export const useSearch = ({ books }) => {
+export const useSearch = ({ books }: { books: Book[]; }) => {
     const [query, setQuery] = useState("");
-    const [searchedBooks, setSearchedBooks] = useState([]);
+    const [searchedBooks, setSearchedBooks] = useState<Book[]>([]);
 
     useEffect(() => {
         (async () => {
             const result = await search(query, 10);
-
-            if (result && !result.error)
-                setSearchedBooks(result.map(book =>
+            if (result && "error" in result) {
+                result.error;
+            }
+            if (result && "map" in result)
+                // TODO clean this up
+                setSearchedBooks(result.map((book: Book) =>
                     books.find(({ id }) => id === book.id) ?? { ...book, shelf: "none" }));
             else
                 setSearchedBooks([]);
@@ -37,13 +40,13 @@ export const useSearch = ({ books }) => {
     return {
         searchedBooks,
         query,
-        onQuery: (e) => setQuery(e.target.value),
+        onQuery: (e: ChangeEvent<HTMLInputElement>) => setQuery(e.target.value),
     };
 };
 
 
 export const useApp = () => {
-    const [books, setBooks] = useState([]);
+    const [books, setBooks] = useState<Book[]>([]);
 
     useEffect(() => {
         (async () => {
@@ -51,12 +54,10 @@ export const useApp = () => {
         })();
     }, []);
 
-    /**
-     * Function name `onMoveBook` is just a placeholder, subject to change
-     * @param {{book: any, shelf:string}} param0 
-     */
-    const onMoveBook = async ({ book, shelf }) => {
+
+    const onMoveBook: OnMoveBook = async ({ book, shelf }) => {
         if ((await update(book, shelf))[shelf]?.includes(book.id))
+            // NOTE a away of not requiring an API call here?
             setBooks(books.filter(({ id }) => id !== book.id).concat((await get(book.id))));
         else
             setBooks(books.filter(({ id }) => id !== book.id));
@@ -67,3 +68,5 @@ export const useApp = () => {
         onMoveBook,
     };
 };
+
+export type OnMoveBook = (args: { book: Book, shelf: Shelf; }) => Promise<void>;

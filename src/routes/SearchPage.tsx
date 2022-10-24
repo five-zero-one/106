@@ -1,10 +1,15 @@
 import { Link } from "react-router-dom";
+import { Book, Shelf } from "../api/book";
 import BookList from "../component/BookList";
-import { useSearch } from "../hook";
+import { OnMoveBook, useSearch } from "../hook/index";
 
+type PageProps = {
+    books: Book[];
+    onMoveBook: OnMoveBook;
+};
 
-export default function SearchPage({ books, onMoveBook }) {
-    const { searchedBooks, onQuery } = useSearch({ books, onMoveBook });
+export default function SearchPage({ books, onMoveBook }: PageProps) {
+    const { searchedBooks, onQuery } = useSearch({ books });
 
     return (
         <div className="search-books">
